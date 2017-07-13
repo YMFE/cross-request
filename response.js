@@ -50,6 +50,12 @@ function sendAjax(req, successFn, errorFn) {
     var formDatas;
     var xhr = new XMLHttpRequest();
 
+    req.headers['Content-Type'] = req.headers['Content-type'] || req.headers['content-type'];// 兼容多种写法
+
+    if(req.files && Object.keys(req.files).length >0){
+        req.headers['Content-Type'] = 'multipart/form-data'
+    }
+
     xhr.timeout = req.timeout || 5000;
 
     req.method = req.method || 'GET';
