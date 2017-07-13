@@ -2,7 +2,7 @@
 
 ### Install
         npm install crossRequest --save
-
+        安装chrome扩展 crossRequest
 ### Example
 
 ```
