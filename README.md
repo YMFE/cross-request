@@ -1,17 +1,38 @@
-#### ***文中链接各位根据自己项目对应修改***
---------------------------------------------------------------------------------
-#### **项目管理**：
-#### *PMO*:(http://pmo.corp.qunar.com)<br />
---------------------------------------------------------------------------------
-#### **CI/CD**:
-#### *QDR*:(http://qdr.corp.qunar.com/)<br />
-#### *QCI*:(http://qci.corp.qunar.com/)<br />
-#### *CABLE*:(http://wanshiwu.corp.qunar.com/qualitycheck/index/)<br />
+### 一个赋予html页面跨域请求能力的谷歌扩展
 
---------------------------------------------------------------------------------
-#### **质量管理**:
-#### *bugfree*:(http://svn.corp.qunar.com/bugfree)<br />
-#### *case*:(http://bugfree.corp.qunar.com/bugfree/index.php/case)<br />
---------------------------------------------------------------------------------
-#### **项目信息**:
-#### *wiki*:(http://wiki.corp.qunar.com/)<br />
+### Install
+        npm install crossRequest --save
+
+### Example
+
+1. es6
+```
+var crossRequest = require('crossRequest');
+
+crossRequest({
+    url: 'http://caibaojian.com/ajax-jsonp.html',
+    method: 'GET',
+    data: {
+        a:1
+    },
+    success: function(res, header){
+        console.log(header)
+    }
+})
+```
+
+2. 在页面引用,可直接使用全局变量 crossRequest
+
+```
+crossRequest({
+    url: 'http://caibaojian.com/ajax-jsonp.html',
+    method: 'GET',
+    data: {
+        a:1
+    },
+    success: function(res, header){
+        console.log(header)
+    }
+})
+
+```

@@ -1,0 +1,15 @@
+{
+  "name": "crossRequest",
+  "version": "1.0.0",
+  "description": "一个赋予html页面跨域请求能力的谷歌扩展",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.corp.qunar.com:mfe/yapi-request.git"
+  },
+  "author": "wenxiong",
+  "license": "ISC"
+}
