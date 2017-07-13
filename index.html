@@ -1,13 +1,13 @@
 <html>
 
 <body>
-    <h1>hello!!!</h1>
+    <h1>CrossRequest</h1>
      <input id="file" type="file" name="file" />
      <button id="upload">upload</button>
-    <script src="yRequest.js"></script>
+    <script src="index.js"></script>
 
     <script>
-        yRequest({
+        crossRequest({
             url: 'http://caibaojian.com/ajax-jsonp.html',
             method: 'GET',
             data: {
@@ -20,7 +20,7 @@
 
 
         //test get
-        yRequest({
+        crossRequest({
             url: 'http://127.0.0.1:3000/api',
             method: 'POST',
             headers: {
@@ -39,7 +39,7 @@
         })
 
         //test error get
-        yRequest({
+        crossRequest({
             url: 'http://127.0.0.1:3000/error_get',
             method: 'GET',
             error: function(err, header){
@@ -50,7 +50,7 @@
         //test upload
         var file = document.getElementById('file');
         document.getElementById('upload').addEventListener('click', function(){
-            yRequest({
+            crossRequest({
                 url: 'http://127.0.0.1:3000/upload',
                 method: 'POST',
                 data: {
