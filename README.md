@@ -1,13 +1,13 @@
 ### 一个赋予html页面跨域请求能力的chrome扩展
 
 ### Install
-        npm install crossRequest --save
-        安装chrome扩展 crossRequest
+        npm install cross-request --save
+        安装chrome扩展 cross-request
 ### Example
 
 ```
 //1. require方式
-var crossRequest = require('crossRequest');
+var crossRequest = require('cross-request');
 
 crossRequest({
     url: 'http://caibaojian.com/ajax-jsonp.html',
