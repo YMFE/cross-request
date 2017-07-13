@@ -5,8 +5,8 @@
 
 ### Example
 
-1. es6
 ```
+//1. require方式
 var crossRequest = require('crossRequest');
 
 crossRequest({
@@ -19,11 +19,8 @@ crossRequest({
         console.log(header)
     }
 })
-```
 
-2. 在页面引用,可直接使用全局变量 crossRequest
-
-```
+//2. 在页面引用js脚本index.js,可直接使用全局变量 crossRequest
 crossRequest({
     url: 'http://caibaojian.com/ajax-jsonp.html',
     method: 'GET',

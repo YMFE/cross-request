@@ -110,9 +110,9 @@
         }, 50)
     }
 
-    win.yRequest = yRequest;
+    win.crossRequest = yRequest;
     if (typeof define == 'function' && define.amd) {
-        define('yRequest', [], function () {
+        define('crossRequest', [], function () {
             return yRequest;
         });
     }
