@@ -8,6 +8,7 @@ var localStorageKey = 'y_request_allow_urls'
 /*==============common end=================*/
 
 var yRequestDom = document.getElementById(container);
+yRequestDom.setAttribute('key', 'yapi');
 
 function handleHeader(headers) {
     if (!headers) return;
@@ -50,7 +51,8 @@ function sendAjax(req, successFn, errorFn) {
     var formDatas;
     var xhr = new XMLHttpRequest();
 
-    req.headers['Content-Type'] = req.headers['Content-type'] || req.headers['content-type'];// 兼容多种写法
+    req.headers = req.headers || {};
+    req.headers['Content-Type'] = req.headers['Content-Type'] ||  req.headers['Content-type'] || req.headers['content-type'] || 'text/plain';// 兼容多种写法
 
     if(req.files && Object.keys(req.files).length >0){
         req.headers['Content-Type'] = 'multipart/form-data'
@@ -169,4 +171,3 @@ function isAllowHost() {
 
 
 isAllowHost();
-
