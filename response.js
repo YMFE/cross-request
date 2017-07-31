@@ -8,7 +8,8 @@ var localStorageKey = 'y_request_allow_urls'
 /*==============common end=================*/
 
 var yRequestDom = document.getElementById(container);
-yRequestDom.setAttribute('key', 'yapi');
+
+
 
 function handleHeader(headers) {
     if (!headers) return;
@@ -168,6 +169,14 @@ function isAllowHost() {
     })
 
 }
+try{
+    if(yRequestDom){
+        yRequestDom.setAttribute('key', 'yapi');
+        isAllowHost();
+    }
+    
+}catch(e){
+
+}
 
 
-isAllowHost();
