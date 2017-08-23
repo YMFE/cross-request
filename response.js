@@ -9,8 +9,6 @@ var localStorageKey = 'y_request_allow_urls'
 
 var yRequestDom = document.getElementById(container);
 
-
-
 function handleHeader(headers) {
     if (!headers) return;
     var newHeaders = {}, headers = headers.split(/[\r\n]/).forEach(function (header) {
@@ -53,9 +51,9 @@ function sendAjax(req, successFn, errorFn) {
     var xhr = new XMLHttpRequest();
 
     req.headers = req.headers || {};
-    req.headers['Content-Type'] = req.headers['Content-Type'] ||  req.headers['Content-type'] || req.headers['content-type'] || 'text/plain';// 兼容多种写法
+    req.headers['Content-Type'] = req.headers['Content-Type'] || req.headers['Content-type'] || req.headers['content-type'] || 'text/plain';// 兼容多种写法
 
-    if(req.files && Object.keys(req.files).length >0){
+    if (req.files && Object.keys(req.files).length > 0) {
         req.headers['Content-Type'] = 'multipart/form-data'
     }
 
@@ -65,7 +63,7 @@ function sendAjax(req, successFn, errorFn) {
     req.async = req.async === false ? false : true;
     req.headers = req.headers || {};
 
-    if (req.method.toLowerCase() !== 'get') {
+    if (req.method.toLowerCase() !== 'get' || req.method.toLowerCase() !== 'head' || req.method.toLowerCase() !== 'options') {
         if (!req.headers['Content-Type'] || req.headers['Content-Type'] == 'application/x-www-form-urlencoded') {
             req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
             req.data = formUrlencode(req.data);
@@ -154,29 +152,33 @@ function yResponse() {
 
 function isAllowHost() {
     chrome.runtime.sendMessage({ action: 'get', name: localStorageKey }, function (res) {
-        res = JSON.parse(res);
-        var flag = false;
-        for (var name in res) {
-            if (location.href.indexOf(name) > -1) {
-                flag = true;
+        try {
+            res = JSON.parse(res);
+            var flag = false;
+            for (var name in res) {
+                if (location.href.indexOf(name) > -1) {
+                    flag = true;
+                }
             }
-        }
-        if (flag && yRequestDom) {
-            setInterval(function () {
-                yResponse()
-            }, 100)
+            if (flag && yRequestDom) {
+                setInterval(function () {
+                    yResponse()
+                }, 100)
+            }
+        } catch (e) {
+            console.error(e)
         }
     })
 
 }
-try{
-    if(yRequestDom){
+try {
+    if (yRequestDom) {
         yRequestDom.setAttribute('key', 'yapi');
         isAllowHost();
     }
-    
-}catch(e){
 
+} catch (e) {
+    console.error(e)
 }
 
 

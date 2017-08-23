@@ -1,6 +1,6 @@
 {
   "name": "cross-request",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "一个赋予html页面跨域请求能力的谷歌扩展",
   "main": "index.js",
   "scripts": {
