@@ -32,3 +32,6 @@ Thumbs.db
 # *.zip
 # *.tar
 # *.tar.gz
+
+.vscode/
+node_modules/

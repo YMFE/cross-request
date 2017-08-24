@@ -25,7 +25,7 @@ function handleHeader(headers) {
 }
 
 function resFn(res, dom, data) {
-    if (!res) return;
+    // if (!res) return;
     var id = dom.getAttribute("_id");
     var headers = handleHeader(this.getAllResponseHeaders());
     data.res = {
@@ -89,9 +89,9 @@ function sendAjax(req, successFn, errorFn) {
         }
     } else {
         if (req.data) {
-            var getUrl = formUrlencode(req.data);
-            req.url = req.url + '?' + getUrl;
-            req.data = '';
+            // var getUrl = formUrlencode(req.data);
+            // req.url = req.url + '?' + getUrl;
+            // req.data = '';
         }
 
     }
@@ -121,7 +121,12 @@ function sendAjax(req, successFn, errorFn) {
     };
     xhr.upload.onprogress = function (e) { };
 
-    xhr.send(req.data);
+    try {
+        xhr.send(req.data);
+    } catch (error) {
+        errorFn.call(xhr, error.message)
+    }
+    
 
 }
 
