@@ -7,7 +7,19 @@ var ENDSTATUS = 2;
 var localStorageKey = 'y_request_allow_urls'
 /*==============common end=================*/
 
-var yRequestDom = document.getElementById(container);
+function injectJs(){
+    var s = document.createElement('script');
+    // TODO: add "script.js" to web_accessible_resources in manifest.json
+    s.src = chrome.extension.getURL('index.js');
+    s.onload = function() {
+        this.remove();
+    };
+    (document.head || document.documentElement).appendChild(s);
+}
+
+injectJs();
+
+var yRequestDom ;
 
 function handleHeader(headers) {
     if (!headers) return;
@@ -24,7 +36,6 @@ function handleHeader(headers) {
 }
 
 function resFn(res, dom, data) {
-    // if (!res) return;
     var id = dom.getAttribute("_id");
     var headers = handleHeader(this.getAllResponseHeaders());
     data.res = {
@@ -68,6 +79,7 @@ function sendAjax(req, successFn, errorFn) {
             req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
             req.data = formUrlencode(req.data);
         } else if (req.headers['Content-Type'] === 'multipart/form-data') {
+            delete req.headers['Content-Type'];
             formDatas = new FormData();
             if (req.data) {
                 for (var name in req.data) {
@@ -87,10 +99,10 @@ function sendAjax(req, successFn, errorFn) {
             req.data = JSON.stringify(req.data);
         }
     } else {
-        if (req.data) {
-            // var getUrl = formUrlencode(req.data);
-            // req.url = req.url + '?' + getUrl;
-            // req.data = '';
+        if (req.query) {
+            var getUrl = formUrlencode(req.query);
+            req.url = req.url + '?' + getUrl;
+            req.query = '';
         }
 
     }
@@ -161,11 +173,12 @@ function isAllowHost() {
             res = JSON.parse(res);
             var flag = false;
             for (var name in res) {
-                if (location.href.indexOf(name) > -1) {
+                if (location.hostname.indexOf(name) > -1) {
                     flag = true;
                 }
             }
-            if (flag && yRequestDom) {
+            var crossRequestSign = document.getElementById('cross-request-sign');
+            if ((flag || crossRequestSign) && yRequestDom) {
                 setInterval(function () {
                     yResponse()
                 }, 100)
@@ -177,10 +190,20 @@ function isAllowHost() {
 
 }
 try {
-    if (yRequestDom) {
-        yRequestDom.setAttribute('key', 'yapi');
-        isAllowHost();
-    }
+    var findDom = setInterval(function(){
+        try{
+            yRequestDom = document.getElementById(container);
+            if (yRequestDom) {
+                clearInterval(findDom)
+                yRequestDom.setAttribute('key', 'yapi');
+                isAllowHost();
+            }
+            
+        }catch(e){
+            clearInterval(findDom)
+            console.error(e)
+        }
+    }, 100)
 
 } catch (e) {
     console.error(e)

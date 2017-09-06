@@ -14,9 +14,8 @@ var urls = chrome.runtime.sendMessage({action:'get', name: key}, function(urls){
   var urlDom = $('#urls');
 
   if (!urls || $.trim(urls) === '{}') {
-    urls = { 'http://yapi.corp.qunar.com': true ,
-      '127.0.0.1': true,
-      '0.0.0.0' : true
+    urls = { 'yapi.corp.qunar.com': true ,
+      '127.0.0.1': true
       };
     chrome.runtime.sendMessage({action:'set', name: key, value: JSON.stringify(urls)})
     
