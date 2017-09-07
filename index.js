@@ -6,7 +6,13 @@
     var INITSTATUS = 0;
     var RUNSTATUS = 1;
     var ENDSTATUS = 2;
-
+    function encode(data){
+        return window.base64.encode(encodeURIComponent(JSON.stringify(data)));
+    }
+    
+    function decode(data){
+        return JSON.parse(decodeURIComponent(window.base64.decode(data)));
+    }
     /*==============common end=================*/
 
 
@@ -41,7 +47,7 @@
             res: null,
             req: req
         }
-        data = JSON.stringify(data, null, 4);
+        data = encode(data);
         var newId = getid();
         var div = createNode('div', {
             _id: newId,
@@ -82,7 +88,7 @@
                         if (+dom.getAttribute('status') === ENDSTATUS) {
                             var text = dom.innerText;
                             if (text) {
-                                var data = JSON.parse(dom.innerText);
+                                var data = decode(dom.innerText);
                                 var id = dom.getAttribute('_id');
                                 var res = data.res;
                                 if (res.status === 200) {

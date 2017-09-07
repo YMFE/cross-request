@@ -1,23 +1,33 @@
 /*==============common begin=================*/
-
 var container = 'y-request';
 var INITSTATUS = 0;
 var RUNSTATUS = 1;
 var ENDSTATUS = 2;
 var localStorageKey = 'y_request_allow_urls'
+
+function encode(data){
+    return window.base64.encode(encodeURIComponent(JSON.stringify(data)));
+}
+
+function decode(data){
+    return JSON.parse(decodeURIComponent(window.base64.decode(data)));
+}
 /*==============common end=================*/
 
-function injectJs(){
+
+
+function injectJs(path){
     var s = document.createElement('script');
     // TODO: add "script.js" to web_accessible_resources in manifest.json
-    s.src = chrome.extension.getURL('index.js');
+    s.src = chrome.extension.getURL(path);
     s.onload = function() {
         this.remove();
     };
     (document.head || document.documentElement).appendChild(s);
 }
 
-injectJs();
+injectJs('base64.js');
+injectJs('index.js');
 
 var yRequestDom ;
 
@@ -46,7 +56,7 @@ function resFn(res, dom, data) {
         body: res
     }
 
-    dom.innerText = JSON.stringify(data);
+    dom.innerText = encode(data);
     dom.setAttribute('status', ENDSTATUS);
 }
 
@@ -150,7 +160,7 @@ function yResponse() {
 
             if (+status === INITSTATUS) {
                 dom.setAttribute("status", RUNSTATUS);
-                var data = JSON.parse(dom.innerText);
+                var data = decode(dom.innerText);
                 var req = data.req;
 
                 sendAjax(req, function (res) {

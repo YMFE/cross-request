@@ -15,11 +15,13 @@
           ]
     },
     "web_accessible_resources":[
-        "index.js"
+        "base64.js",
+        "index.js"        
     ],
      "content_scripts": [{
           "matches": ["http://*/*", "https://*/*"],
         "js": [
+            "base64.js",
             "response.js"
         ]
     }]
