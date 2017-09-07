@@ -1,21 +1,10 @@
 ### 一个赋予html页面跨域请求能力的chrome扩展
-扩展地址： https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpiklaghbok?hl=en-US
+https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpiklaghbok?hl=en-US
 
 ### Example
 
 ```
-
-window.crossRequest({
-    url: 'http://caibaojian.com/ajax-jsonp.html',
-    method: 'GET',
-    success: function(res, header){
-        console.log(header)
-    }
-})
-
-// html 页面测试用例
 <html>
-
 <body>
     <h1>CrossRequest</h1>
      <input id="file" type="file" name="file" />
