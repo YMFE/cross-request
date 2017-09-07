@@ -1,15 +1,11 @@
 ### 一个赋予html页面跨域请求能力的chrome扩展
 扩展地址： https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpiklaghbok?hl=en-US
-### Install
-        npm install cross-request --save
-        安装chrome扩展 cross-request
-### Demo
+
+### Example
 
 ```
-//1. require方式
-var crossRequest = require('cross-request');
 
-crossRequest({
+window.crossRequest({
     url: 'http://caibaojian.com/ajax-jsonp.html',
     method: 'GET',
     success: function(res, header){
@@ -17,19 +13,7 @@ crossRequest({
     }
 })
 
-//2. 在页面引用js脚本index.js,可直接使用全局变量 crossRequest
-crossRequest({
-    url: 'http://caibaojian.com/ajax-jsonp.html',
-    method: 'POST',
-    data: {
-        a:1
-    },
-    success: function(res, header){
-        console.log(header)
-    }
-})
-
-//3. html 页面测试用例
+// html 页面测试用例
 <html>
 
 <body>
@@ -37,9 +21,8 @@ crossRequest({
      <input id="file" type="file" name="file" />
      <button id="upload">upload</button>
     <script src="index.js"></script>
-
     <script>
-        crossRequest({
+        window.crossRequest({
             url: 'http://caibaojian.com/ajax-jsonp.html',
             method: 'GET',
             success: function(res, header){
@@ -47,9 +30,8 @@ crossRequest({
             }
         })
 
-
-        //test get
-        crossRequest({
+        //test post
+        window.crossRequest({
             url: 'http://127.0.0.1:3000/api',
             method: 'POST',
             headers: {
@@ -68,7 +50,7 @@ crossRequest({
         })
 
         //test error get
-        crossRequest({
+        window.crossRequest({
             url: 'http://127.0.0.1:3000/error_get',
             method: 'GET',
             error: function(err, header){
@@ -93,14 +75,9 @@ crossRequest({
                     alert(res)
                 }
             })
-        })
-        
-
+        })       
     </script>
-
-   
 </body>
-
 </html>
 
 ```
