@@ -12,15 +12,7 @@ var key = 'y_request_allow_urls';
 
 var urls = chrome.runtime.sendMessage({action:'get', name: key}, function(urls){
   var urlDom = $('#urls');
-
-  if (!urls || $.trim(urls) === '{}') {
-    urls = { 'yapi.corp.qunar.com': true ,
-      '127.0.0.1': true
-      };
-    chrome.runtime.sendMessage({action:'set', name: key, value: JSON.stringify(urls)})
-    
-  }
-  else urls = JSON.parse(urls);
+  urls = JSON.parse(urls);
 
   for (var url in urls) {
     urlDom.append(generateHtml(url));

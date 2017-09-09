@@ -108,16 +108,17 @@ function sendAjax(req, successFn, errorFn) {
         } else if (typeof req.data === 'object' && req.data) {
             req.data = JSON.stringify(req.data);
         }
-    } else {
-        if (req.query) {
-            var getUrl = formUrlencode(req.query);
-            req.url = req.url + '?' + getUrl;
-            req.query = '';
+        if(req.file){
+            req.data = document.getElementById(req.file).files[0];
         }
-
+    }
+    if (req.query && typeof req.query === 'object') {
+        var getUrl = formUrlencode(req.query);
+        req.url = req.url + '?' + getUrl;
+        req.query = '';
     }
 
-
+    
 
     xhr.open(req.method, req.url, req.async);
 
@@ -180,7 +181,18 @@ function yResponse() {
 function isAllowHost() {
     chrome.runtime.sendMessage({ action: 'get', name: localStorageKey }, function (res) {
         try {
-            res = JSON.parse(res);
+            try{
+                res = JSON.parse(res);
+            }catch(e){
+                res = null;
+            }
+            if(!res || Object.keys(res).length === 0){
+                res = { 'yapi.corp.qunar.com': true ,
+                '127.0.0.1': true
+                };
+                chrome.runtime.sendMessage({action:'set', name: localStorageKey, value: JSON.stringify(res)})
+            }
+            
             var flag = false;
             for (var name in res) {
                 if (location.hostname.indexOf(name) > -1) {
@@ -199,24 +211,23 @@ function isAllowHost() {
     })
 
 }
-try {
-    var findDom = setInterval(function(){
-        try{
-            yRequestDom = document.getElementById(container);
-            if (yRequestDom) {
-                clearInterval(findDom)
-                yRequestDom.setAttribute('key', 'yapi');
-                isAllowHost();
-            }
-            
-        }catch(e){
-            clearInterval(findDom)
-            console.error(e)
-        }
-    }, 100)
 
-} catch (e) {
-    console.error(e)
-}
+var findDom = setInterval(function(){
+    try{
+        yRequestDom = document.getElementById(container);
+        if (yRequestDom) {
+            clearInterval(findDom)
+            yRequestDom.setAttribute('key', 'yapi');
+            yRequestDom.setAttribute('v', '1.8');
+            isAllowHost();
+        }
+        
+    }catch(e){
+        clearInterval(findDom)
+        console.error(e)
+    }
+}, 100)
+
+
 
 
