@@ -1,4 +1,6 @@
+### A chrome extension that gives the html page cross-domain request capability.
 ### 一个赋予html页面跨域请求能力的chrome扩展
+
 https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpiklaghbok?hl=en-US
 
 ### Example
@@ -64,7 +66,20 @@ https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpi
                     alert(res)
                 }
             })
-        })       
+        }) 
+
+        //test single-upload
+            document.getElementById('upload').addEventListener('click', function () {
+                window.crossRequest({
+                    url: 'http://127.0.0.1:8081/upload/single',
+                    method: 'POST',
+                    file: 'file',
+                    success: function (res) {
+                        alert(res)
+                    }
+                })
+
+            })      
     </script>
 </body>
 </html>
