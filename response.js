@@ -187,15 +187,15 @@ function isAllowHost() {
                 res = null;
             }
             if(!res || Object.keys(res).length === 0){
-                res = { 'yapi.corp.qunar.com': true ,
-                '127.0.0.1': true
-                };
+                res = { '*': true};
                 chrome.runtime.sendMessage({action:'set', name: localStorageKey, value: JSON.stringify(res)})
             }
             
             var flag = false;
             for (var name in res) {
-                if (location.hostname.indexOf(name) > -1) {
+                name = name.replace(/\*/, ".*?");
+                var nameRegexp = new RegExp(name);
+                if (nameRegexp.test(location.hostname)) {
                     flag = true;
                 }
             }

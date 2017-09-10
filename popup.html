@@ -4,19 +4,20 @@
     <title>crossRequest</title>
     <meta charset="utf8"/>
     <style>
+      *{margin:8px;}
       body {font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;  font-size: 100%;}
       .main{width:320px;}
-      *{margin:8px;}
-      .content{line-height: 25px;}
+      .content{line-height: 25px;min-height: 100px;}
       .add{line-height:40px;margin-bottom: 20px;}
       .add input{width:200px;line-height:25px;}
       .add button{width:70px;line-height:25px;}
+      .url{min-width: 200px}
       .del{cursor:pointer}
     </style>
   </head>
   <body>
     <div class="main">
-      <h4>允许跨域请求的Host:</h4>
+      <h4>Allow Host:</h4>
       <div class="content" id="urls">
         
       </div>
