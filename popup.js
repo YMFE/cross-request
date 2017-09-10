@@ -12,12 +12,15 @@ var key = 'y_request_allow_urls';
 
 var urls = chrome.runtime.sendMessage({action:'get', name: key}, function(urls){
   var urlDom = $('#urls');
-  
-  if(!urls || Object.keys(urls).length === 0){
-    urls = { '*': true};
-    chrome.runtime.sendMessage({action:'set', name: localStorageKey, value: JSON.stringify(urls)})
-  }else{
+  try{
     urls = JSON.parse(urls);
+  }catch(e){
+    urls = null;
+  }
+  
+  if(!urls ||  Object.keys(urls).length === 0){
+    urls = { '*': true};
+    chrome.runtime.sendMessage({action:'set', name: key, value: JSON.stringify(urls)})
   }
 
   for (var url in urls) {
