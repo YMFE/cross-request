@@ -3,14 +3,6 @@
 
 https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpiklaghbok?hl=en-US
 
-### Usage
-方式一：
-在html页面添加 id="cross-request-sign" dom元素
-方式二：
-点击右上角yapi扩展，添加允许跨域的页面domain
-
-
-
 ### Code Example
 ```
 <html>
