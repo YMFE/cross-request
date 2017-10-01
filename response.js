@@ -5,22 +5,21 @@ var RUNSTATUS = 1;
 var ENDSTATUS = 2;
 var localStorageKey = 'y_request_allow_urls'
 
-function encode(data){
+function encode(data) {
     return window.base64.encode(encodeURIComponent(JSON.stringify(data)));
 }
 
-function decode(data){
+function decode(data) {
     return JSON.parse(decodeURIComponent(window.base64.decode(data)));
 }
 /*==============common end=================*/
+var connect = chrome.runtime.connect({ name: "request" });
 
-
-
-function injectJs(path){
+function injectJs(path) {
     var s = document.createElement('script');
     // TODO: add "script.js" to web_accessible_resources in manifest.json
     s.src = chrome.extension.getURL(path);
-    s.onload = function() {
+    s.onload = function () {
         this.remove();
     };
     (document.head || document.documentElement).appendChild(s);
@@ -29,7 +28,7 @@ function injectJs(path){
 injectJs('base64.js');
 injectJs('index.js');
 
-var yRequestDom ;
+var yRequestDom, successFns = {}, errorFns = {};
 
 function handleHeader(headers) {
     if (!headers) return;
@@ -45,17 +44,16 @@ function handleHeader(headers) {
     return newHeaders;
 }
 
-function resFn(res, dom, data) {
+function responseCallback(res, dom, data) {
     var id = dom.getAttribute("_id");
-    var headers = handleHeader(this.getAllResponseHeaders());
+    var headers = handleHeader(res.headers);
     data.res = {
         id: id,
-        status: this.status,
-        statusText: this.statusText,
+        status: res.status,
+        statusText: res.statusText,
         header: headers,
-        body: res
+        body: res.body
     }
-
     dom.innerText = encode(data);
     dom.setAttribute('status', ENDSTATUS);
 }
@@ -66,7 +64,7 @@ function formUrlencode(data) {
     }).join('&')
 }
 
-function sendAjax(req, successFn, errorFn) {
+function sendAjaxByHttp(req, successFn, errorFn) {
 
     var formDatas;
     var xhr = new XMLHttpRequest();
@@ -108,7 +106,7 @@ function sendAjax(req, successFn, errorFn) {
         } else if (typeof req.data === 'object' && req.data) {
             req.data = JSON.stringify(req.data);
         }
-        if(req.file){
+        if (req.file) {
             req.data = document.getElementById(req.file).files[0];
         }
     }
@@ -117,11 +115,8 @@ function sendAjax(req, successFn, errorFn) {
         req.url = req.url + '?' + getUrl;
         req.query = '';
     }
-
-    
-
     xhr.open(req.method, req.url, req.async);
-
+    var response = {};
     if (req.headers) {
         for (var name in req.headers) {
             xhr.setRequestHeader(name, req.headers[name]);
@@ -129,28 +124,59 @@ function sendAjax(req, successFn, errorFn) {
     }
 
     xhr.onload = function (e) {
-        if (this.status == 200) {
-            successFn.call(xhr, this.responseText);
+        response = {
+            headers: xhr.getAllResponseHeaders(),
+            status: xhr.status,
+            statusText: xhr.statusText,
+            body: xhr.responseText
+        }
+        if (xhr.status == 200) {
+            successFn(response);
         } else {
-            errorFn.call(xhr, this.responseText)
+            errorFn(response);
         }
     };
     xhr.ontimeout = function (e) {
-        errorFn.call(xhr, 'Error:Request timeout that the time is ' + xhr.timeout)
+        errorFn({
+            body: 'Error:Request timeout that the time is ' + xhr.timeout
+        })
     };
     xhr.onerror = function (e) {
-        errorFn.call(xhr, xhr.statusText)
+        errorFn({
+            body: xhr.statusText
+        })
     };
     xhr.upload.onprogress = function (e) { };
 
     try {
         xhr.send(req.data);
     } catch (error) {
-        errorFn.call(xhr, error.message)
+        errorFn({
+            body: error.message
+        })
     }
-    
+
 
 }
+
+function sendAjaxByHttps(id, req, successFn, errorFn) {
+    successFns[id] = successFn;
+    errorFn[id] = errorFn;
+    connect.postMessage({
+        id: id,
+        req: req
+    });
+}
+
+connect.onMessage.addListener(function (msg) {
+    var id = msg.id;
+    var res = msg.res;
+    res.status === 200 ?
+        successFns[id](res) :
+        errorFns[id](res);
+    delete successFns[id];
+    delete errorFns[id];
+});
 
 function yResponse() {
     var reqsDom = yRequestDom.childNodes;
@@ -163,12 +189,20 @@ function yResponse() {
                 dom.setAttribute("status", RUNSTATUS);
                 var data = decode(dom.innerText);
                 var req = data.req;
-
-                sendAjax(req, function (res) {
-                    resFn.bind(this)(res, dom, data);
-                }, function (err) {
-                    resFn.bind(this)(err, dom, data);
-                })
+                var id = dom.getAttribute('_id');
+                if (location.protocol === 'https') {
+                    sendAjaxByHttps(id, req, function (res) {
+                        responseCallback(res, dom, data);
+                    }, function (err) {
+                        responseCallback(err, dom, data);
+                    })
+                } else {
+                    sendAjaxByHttp(req, function (res) {
+                        responseCallback(res, dom, data);
+                    }, function (err) {
+                        responseCallback(err, dom, data);
+                    })
+                }
             }
         } catch (error) {
             console.error(error.message)
@@ -181,16 +215,16 @@ function yResponse() {
 function isAllowHost() {
     chrome.runtime.sendMessage({ action: 'get', name: localStorageKey }, function (res) {
         try {
-            try{
+            try {
                 res = JSON.parse(res);
-            }catch(e){
+            } catch (e) {
                 res = null;
             }
-            if(!res || Object.keys(res).length === 0){
-                res = { '*': true};
-                chrome.runtime.sendMessage({action:'set', name: localStorageKey, value: JSON.stringify(res)})
+            if (!res || Object.keys(res).length === 0) {
+                res = { '*': true };
+                chrome.runtime.sendMessage({ action: 'set', name: localStorageKey, value: JSON.stringify(res) })
             }
-            
+
             var flag = false;
             for (var name in res) {
                 name = name.replace(/\*/, ".*?");
@@ -212,17 +246,16 @@ function isAllowHost() {
 
 }
 
-var findDom = setInterval(function(){
-    try{
+var findDom = setInterval(function () {
+    try {
         yRequestDom = document.getElementById(container);
         if (yRequestDom) {
             clearInterval(findDom)
             yRequestDom.setAttribute('key', 'yapi');
-            yRequestDom.setAttribute('v', '1.8');
             isAllowHost();
         }
-        
-    }catch(e){
+
+    } catch (e) {
         clearInterval(findDom)
         console.error(e)
     }
