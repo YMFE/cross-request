@@ -7,11 +7,11 @@
     var RUNSTATUS = 1;
     var ENDSTATUS = 2;
     function encode(data){
-        return window.base64.encode(encodeURIComponent(JSON.stringify(data)));
+        return encodeURIComponent(JSON.stringify(data));
     }
     
     function decode(data){
-        return JSON.parse(decodeURIComponent(window.base64.decode(data)));
+        return JSON.parse(decodeURIComponent(data));
     }
     /*==============common end=================*/
 

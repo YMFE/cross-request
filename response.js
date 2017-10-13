@@ -6,11 +6,11 @@ var ENDSTATUS = 2;
 var localStorageKey = 'y_request_allow_urls'
 
 function encode(data) {
-    return window.base64.encode(encodeURIComponent(JSON.stringify(data)));
+    return encodeURIComponent(JSON.stringify(data));
 }
 
 function decode(data) {
-    return JSON.parse(decodeURIComponent(window.base64.decode(data)));
+    return JSON.parse(decodeURIComponent(data));
 }
 /*==============common end=================*/
 var connect = chrome.runtime.connect({ name: "request" });
@@ -25,7 +25,6 @@ function injectJs(path) {
     (document.head || document.documentElement).appendChild(s);
 }
 
-injectJs('base64.js');
 injectJs('index.js');
 
 var yRequestDom, successFns = {}, errorFns = {};
