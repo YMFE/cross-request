@@ -47,7 +47,7 @@ crossRequest({
             id: '19'
         },
         files: {
-            file: 'fileId' //File Upload ElementId
+            file: 'fileId' //File Upload-Input dom id
         },
         success: function (res) {
             alert(res)
