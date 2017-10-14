@@ -211,47 +211,16 @@ function yResponse() {
     })
 }
 
-function isAllowHost() {
-    chrome.runtime.sendMessage({ action: 'get', name: localStorageKey }, function (res) {
-        try {
-            try {
-                res = JSON.parse(res);
-            } catch (e) {
-                res = null;
-            }
-            if (!res || Object.keys(res).length === 0) {
-                res = { '*': true };
-                chrome.runtime.sendMessage({ action: 'set', name: localStorageKey, value: JSON.stringify(res) })
-            }
-
-            var flag = false;
-            for (var name in res) {
-                name = name.replace(/\*/, ".*?");
-                var nameRegexp = new RegExp(name);
-                if (nameRegexp.test(location.hostname)) {
-                    flag = true;
-                }
-            }
-            var crossRequestSign = document.getElementById('cross-request-sign');
-            if ((flag || crossRequestSign) && yRequestDom) {
-                setInterval(function () {
-                    yResponse()
-                }, 100)
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    })
-
-}
-
+//因注入 index.js ，需要等到 indexScript 初始化完成后执行
 var findDom = setInterval(function () {
     try {
         yRequestDom = document.getElementById(container);
         if (yRequestDom) {
             clearInterval(findDom)
             yRequestDom.setAttribute('key', 'yapi');
-            isAllowHost();
+            setInterval(function () {
+                yResponse()
+            }, 100)
         }
 
     } catch (e) {
