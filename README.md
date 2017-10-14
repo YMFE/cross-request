@@ -4,7 +4,7 @@
 https://chrome.google.com/webstore/detail/cross-request/cmnlfmgbjmaciiopcgodlhpiklaghbok?hl=en-US
 
 ### Api
-crossRequest(OPTIONS)
+crossRequest( options )
 
 ### Usage
 1. GET
