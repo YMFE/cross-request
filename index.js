@@ -39,7 +39,7 @@
     var interval;
 
 
-    function yRequest(req) {
+    function run(req) {
         if (!req) return;
         if (typeof req === 'string') req = { url: req }
 
@@ -116,10 +116,10 @@
         }, 50)
     }
 
-    win.crossRequest = yRequest;
+    win.crossRequest = run;
     if (typeof define == 'function' && define.amd) {
         define('crossRequest', [], function () {
-            return yRequest;
+            return run;
         });
     }
 

@@ -177,7 +177,7 @@ connect.onMessage.addListener(function (msg) {
     delete errorFns[id];
 });
 
-function yResponse() {
+function run() {
     var reqsDom = yRequestDom.childNodes;
     if (!reqsDom || reqsDom.length === 0) return;
     reqsDom.forEach(function (dom) {
@@ -219,7 +219,7 @@ var findDom = setInterval(function () {
             clearInterval(findDom)
             yRequestDom.setAttribute('key', 'yapi');
             setInterval(function () {
-                yResponse()
+                run()
             }, 100)
         }
 
