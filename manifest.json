@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "cross-request",
     "description": "A chrome extension that gives the html page cross-domain request capability",
-    "version": "2.3",
+    "version": "2.4",
     "browser_action": {
         "default_icon": "icon.png",
         "default_popup": "popup.html"

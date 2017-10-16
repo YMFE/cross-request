@@ -63,7 +63,7 @@ function formUrlencode(data) {
     }).join('&')
 }
 
-function sendAjaxByHttp(req, successFn, errorFn) {
+function sendAjaxByContent(req, successFn, errorFn) {
 
     var formDatas;
     var xhr = new XMLHttpRequest();
@@ -158,9 +158,9 @@ function sendAjaxByHttp(req, successFn, errorFn) {
 
 }
 
-function sendAjaxByHttps(id, req, successFn, errorFn) {
+function sendAjaxByBack(id, req, successFn, errorFn) {
     successFns[id] = successFn;
-    errorFn[id] = errorFn;
+    errorFns[id] = errorFn;
     connect.postMessage({
         id: id,
         req: req
@@ -183,20 +183,20 @@ function yResponse() {
     reqsDom.forEach(function (dom) {
         try {
             var status = dom.getAttribute("status"), request;
-
             if (+status === INITSTATUS) {
                 dom.setAttribute("status", RUNSTATUS);
                 var data = decode(dom.innerText);
                 var req = data.req;
+                req.url = req.url || '';
                 var id = dom.getAttribute('_id');
-                if (location.protocol === 'https') {
-                    sendAjaxByHttps(id, req, function (res) {
+                if (location.protocol.indexOf('https') === 0 && req.url.indexOf('https') !== 0) {
+                    sendAjaxByBack(id, req, function (res) {
                         responseCallback(res, dom, data);
                     }, function (err) {
                         responseCallback(err, dom, data);
                     })
                 } else {
-                    sendAjaxByHttp(req, function (res) {
+                    sendAjaxByContent(req, function (res) {
                         responseCallback(res, dom, data);
                     }, function (err) {
                         responseCallback(err, dom, data);
