@@ -301,9 +301,12 @@ function sendAjaxByContent(req, successFn, errorFn) {
         if(headers['cross-response-unsafe-headers-list']){
             newHeaders = decode(headers['cross-response-unsafe-headers-list'])
             delete headers['cross-response-unsafe-headers-list'];
+            if(newHeaders && typeof newHeaders === 'object' && Object.keys(newHeaders).length > 0){
+                headers = newHeaders;
+            }
         }
         response = {
-            headers: Object.assign({}, headers, newHeaders),
+            headers: headers,
             status: xhr.status,
             statusText: xhr.statusText,
             body: xhr.responseText
