@@ -205,6 +205,7 @@ function handleHeader(headers) {
 function responseCallback(res, dom, data) {
     var id = dom.getAttribute("_id");
     var headers = handleHeader(res.headers);
+    data.runTime = new Date().getTime() - data.runTime;
     data.res = {
         id: id,
         status: res.status,
@@ -378,9 +379,10 @@ function run() {
                 var req = data.req;
                 req.url = req.url || '';
                 var id = dom.getAttribute('_id');
+                data.runTime = new Date().getTime();
 
                 if (location.protocol.indexOf('https') === 0 && req.url.indexOf('https') !== 0) {
-                    sendAjaxByBack(id, req, function (res) {
+                    sendAjaxByBack(id, req, function (res) {                        
                         responseCallback(res, dom, data);
                     }, function (err) {
                         responseCallback(err, dom, data);

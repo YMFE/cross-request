@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
     "name": "cross-request",
-    "description": "A chrome extension that gives the html page cross-domain request capability",
-    "version": "2.6",
+    "description": "YApi 跨域请求",
+    "version": "2.7",
     "browser_action": {
         "default_icon": "icon.png",
         "default_popup": "popup.html"

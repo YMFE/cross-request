@@ -1,5 +1,9 @@
 (function (win) {
 
+    if(!document.getElementById('yapi-cross-request-sign')){
+        return;
+    }
+
     /*==============common begin=================*/
 
     var container = 'y-request';
