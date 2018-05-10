@@ -1,6 +1,6 @@
 (function (win) {
 
-    if(!document.getElementById('yapi-cross-request-sign')){
+    if(!document.getElementById('cross-request-sign')){
         return;
     }
 
