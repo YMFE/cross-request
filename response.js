@@ -14,6 +14,7 @@ function decode(data) {
 }
 
 function formUrlencode(data) {
+    if(!data || typeof data !== 'object') return ''
     return Object.keys(data).map(function (key) {
         return encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
     }).join('&')
@@ -215,12 +216,6 @@ function responseCallback(res, dom, data) {
     }
     dom.innerText = encode(data);
     dom.setAttribute('status', ENDSTATUS);
-}
-
-function formUrlencode(data) {
-    return Object.keys(data).map(function (key) {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
-    }).join('&')
 }
 
 function sendAjaxByContent(req, successFn, errorFn) {
