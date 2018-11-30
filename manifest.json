@@ -21,6 +21,7 @@
           "matches": ["http://*/*", "https://*/*"],
         "js": [
             "response.js"
-        ]
+        ],
+        "all_frames": true
     }]
 }
