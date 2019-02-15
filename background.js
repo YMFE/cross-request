@@ -373,10 +373,10 @@ chrome.webRequest.onBeforeSendHeaders.removeListener(requestListener);
 
 chrome.webRequest.onHeadersReceived.addListener(responseListener, {
 		urls: ["<all_urls>"]
-	}, ['blocking', 'responseHeaders']);
+	}, ['blocking', 'responseHeaders', 'extraHeaders']);
 
 chrome.webRequest.onBeforeSendHeaders.addListener(requestListener, {
 		urls: ["<all_urls>"]
-	}, ['blocking', 'requestHeaders']);
+	}, ['blocking', 'requestHeaders', 'extraHeaders']);
 
 
