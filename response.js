@@ -224,7 +224,8 @@ function sendAjaxByContent(req, successFn, errorFn) {
     var xhr = new XMLHttpRequest();
 
     req.headers = req.headers || {};
-    req.headers['Content-Type'] = req.headers['Content-Type'] || req.headers['Content-type'] || req.headers['content-type'] || 'text/plain';// 兼容多种写法
+
+    req.headers['Content-Type'] = req.headers['Content-Type'] || req.headers['Content-type'] || req.headers['content-type'];
 
     if (req.files && Object.keys(req.files).length > 0) {
         req.headers['Content-Type'] = 'multipart/form-data'
@@ -236,7 +237,7 @@ function sendAjaxByContent(req, successFn, errorFn) {
     req.async = req.async === false ? false : true;
     req.headers = req.headers || {};
 
-    if (req.method.toLowerCase() !== 'get' || req.method.toLowerCase() !== 'head' || req.method.toLowerCase() !== 'options') {
+    if (req.method.toLowerCase() !== 'get' && req.method.toLowerCase() !== 'head' && req.method.toLowerCase() !== 'options') {
         if (!req.headers['Content-Type'] || req.headers['Content-Type'] == 'application/x-www-form-urlencoded') {
             req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
             req.data = formUrlencode(req.data);
@@ -263,6 +264,8 @@ function sendAjaxByContent(req, successFn, errorFn) {
         if (req.file) {
             req.data = document.getElementById(req.file).files[0];
         }
+    }else{
+      delete req.headers['Content-Type'];
     }
     if (req.query && typeof req.query === 'object') {
         var getUrl = formUrlencode(req.query);
