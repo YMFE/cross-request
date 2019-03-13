@@ -379,19 +379,25 @@ function run() {
                 var id = dom.getAttribute('_id');
                 data.runTime = new Date().getTime();
 
-                if (location.protocol.indexOf('https') === 0 && req.url.indexOf('https') !== 0) {
-                    sendAjaxByBack(id, req, function (res) {                        
-                        responseCallback(res, dom, data);
-                    }, function (err) {
-                        responseCallback(err, dom, data);
-                    })
-                } else {
-                    sendAjaxByContent(req, function (res) {
-                        responseCallback(res, dom, data);
-                    }, function (err) {
-                        responseCallback(err, dom, data);
-                    })
-                }
+                sendAjaxByBack(id, req, function (res) {                        
+                    responseCallback(res, dom, data);
+                }, function (err) {
+                    responseCallback(err, dom, data);
+                })
+
+                // if (location.protocol.indexOf('https') === 0 && req.url.indexOf('https') !== 0) {
+                //     sendAjaxByBack(id, req, function (res) {                        
+                //         responseCallback(res, dom, data);
+                //     }, function (err) {
+                //         responseCallback(err, dom, data);
+                //     })
+                // } else {
+                //     sendAjaxByContent(req, function (res) {
+                //         responseCallback(res, dom, data);
+                //     }, function (err) {
+                //         responseCallback(err, dom, data);
+                //     })
+                // }
                 
 
             }
