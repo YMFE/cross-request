@@ -342,10 +342,44 @@ function sendAjaxByContent(req, successFn, errorFn) {
 function sendAjaxByBack(id, req, successFn, errorFn) {
     successFns[id] = successFn;
     errorFns[id] = errorFn;
-    connect.postMessage({
-        id: id,
-        req: req
-    });
+    if (req.headers['Content-Type'] === 'multipart/form-data') {
+        var formDatas = []
+        if (req.data) {
+            for (var name in req.data) {
+                formDatas.push({name, value: req.data[name], is_file: false});
+            }
+        }
+        if (req.files) {
+            let allPromise = [];
+            for (var name in req.files) {
+                let fileTransfer = new Promise(function (resolve, reject){
+                    var files = document.getElementById(req.files[name]).files;
+                    let file = files[0]
+                    var reader = new FileReader();
+                    reader.name = name;
+                    reader.fileName = file.name;
+                    reader.onload = function () {
+                        resolve({name: this.name, value: this.result,is_file: true, fileName: this.fileName});
+                    }
+                    reader.readAsDataURL(file);
+                })
+                allPromise.push(fileTransfer);
+            }
+            Promise.all(allPromise).then(function(result){
+                formDatas = formDatas.concat(result);
+                req.formDatas = formDatas;
+                connect.postMessage({
+                    id: id,
+                    req: req,
+                });
+            })
+        }
+    } else {
+        connect.postMessage({
+            id: id,
+            req: req
+        });
+    }
 }
 
 connect.onMessage.addListener(function (msg) {
