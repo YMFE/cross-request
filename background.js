@@ -216,7 +216,7 @@ function sendAjax(req, successFn, errorFn) {
 	req.headers = req.headers || {};
 
 	if (req.method.toLowerCase() !== 'get' && req.method.toLowerCase() !== 'head' && req.method.toLowerCase() !== 'options') {
-		if (!req.headers['Content-Type'] || req.headers['Content-Type'] == 'application/x-www-form-urlencoded') {
+		if (!req.headers['Content-Type'] || req.headers['Content-Type'].startsWith('application/x-www-form-urlencoded')) {
 			req.headers['Content-Type'] = req.headers['Content-Type'] || 'application/x-www-form-urlencoded';
 			req.data = formUrlencode(req.data);
 		} else if (typeof req.data === 'object' && req.data) {
