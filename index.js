@@ -1,6 +1,6 @@
 (function (win) {
 
-    if(!document.getElementById('cross-request-sign')){
+    if (!document.getElementById('cross-request-sign')) {
         return;
     }
 
@@ -195,21 +195,25 @@
     var interval;
 
 
+
+    var customEvent = document.createEvent('Event');
+    customEvent.initEvent('myCustomEvent', true, true);
+    function fireCustomEvent(data) {
+        hiddenDiv = document.getElementById(container);
+        hiddenDiv.innerText = data
+        hiddenDiv.dispatchEvent(customEvent);
+    }
+
     function run(req) {
         if (!req) return;
         if (typeof req === 'string') req = { url: req }
-
+        var newId = getid();
         data = {
+            id: newId,
             res: null,
             req: req
         }
         data = encode(data);
-        var newId = getid();
-        var div = createNode('div', {
-            _id: newId,
-            status: INITSTATUS
-        }, yRequestDom);
-        div.innerText = data;
         yRequestMap[newId] = {
             id: newId,
             status: INITSTATUS,
@@ -224,53 +228,24 @@
                 }
             }
         }
-        monitor();
+        fireCustomEvent(data);
     }
 
 
-
-    function monitor() {
-        if (interval) return;
-        interval = setInterval(function () {
-            var queueDom = yRequestDom.childNodes;
-            if (!queueDom || queueDom.length === 0) {
-                interval = clearInterval(interval);
+    yRequestDom.addEventListener('reponseEvent', function () {
+        var text = yRequestDom.innerText;
+        if (text) {
+            var data = decode(yRequestDom.innerText);
+            var id = data.id;
+            var res = data.res;
+            if (res.status === 200) {
+                yRequestMap[id].success(res.body, res.header, data);
+            } else {
+                yRequestMap[id].error(res.statusText, res.header, data);
             }
-
-            try {
-                for (var i = 0; i < queueDom.length; i++) {
-                    try {
-                        var dom = queueDom[i];
-                        if (+dom.getAttribute('status') === ENDSTATUS) {
-                            var text = dom.innerText;
-                            if (text) {
-                                var data = decode(dom.innerText);
-                                var id = dom.getAttribute('_id');
-                                var res = data.res;
-                                if (res.status === 200) {
-                                    yRequestMap[id].success(res.body, res.header, data);
-                                } else {
-                                    yRequestMap[id].error(res.statusText, res.header, data);
-                                }
-                                dom.parentNode.removeChild(dom);
-                            } else {
-                                dom.parentNode.removeChild(dom);
-                            }
-
-                        }
-                    } catch (err) {
-                        console.error(err.message);
-                        dom.parentNode.removeChild(dom);
-                    }
-                }
-            } catch (err) {
-                console.error(err.message);
-                interval = clearInterval(interval);
-            }
-
-
-        }, 50)
-    }
+        } else {
+        }
+    });
 
     win.crossRequest = run;
     if (typeof define == 'function' && define.amd) {
