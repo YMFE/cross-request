@@ -26,6 +26,8 @@ target/
 .DS_Store
 Thumbs.db
 
+.history
+
 # package ignore (optional)
 # *.jar
 # *.war

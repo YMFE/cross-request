@@ -3,9 +3,12 @@
 var base64 = _base64();
 
 function formUrlencode(data) {
-	return Object.keys(data).map(function (key) {
-		return encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
-	}).join('&')
+  if(data && typeof data === 'object'){
+    return Object.keys(data).map(function (key) {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
+    }).join('&')
+  }
+	return '';
 }
 
 function encode(data) {
