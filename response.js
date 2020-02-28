@@ -203,8 +203,11 @@ function handleHeader(headers) {
     return newHeaders;
 }
 
+var customEvent = document.createEvent('Event');
+customEvent.initEvent('reponseEvent', true, true);
+
 function responseCallback(res, dom, data) {
-    var id = dom.getAttribute("_id");
+    var id = data.id;
     var headers = handleHeader(res.headers);
     data.runTime = new Date().getTime() - data.runTime;
     data.res = {
@@ -215,137 +218,52 @@ function responseCallback(res, dom, data) {
         body: res.body
     }
     dom.innerText = encode(data);
-    dom.setAttribute('status', ENDSTATUS);
+    dom.dispatchEvent(customEvent);
+    
 }
 
-function sendAjaxByContent(req, successFn, errorFn) {
-
-    var formDatas;
-    var xhr = new XMLHttpRequest();
-
-    req.headers = req.headers || {};
-
-    req.headers['Content-Type'] = req.headers['Content-Type'] || req.headers['Content-type'] || req.headers['content-type'];
-
-    if (req.files && Object.keys(req.files).length > 0) {
-        req.headers['Content-Type'] = 'multipart/form-data'
-    }
-
-    xhr.timeout = req.timeout || 5000;
-
-    req.method = req.method || 'GET';
-    req.async = req.async === false ? false : true;
-    req.headers = req.headers || {};
-
-    if (req.method.toLowerCase() !== 'get' && req.method.toLowerCase() !== 'head' && req.method.toLowerCase() !== 'options') {
-        if (!req.headers['Content-Type'] || req.headers['Content-Type'] == 'application/x-www-form-urlencoded') {
-            req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-            req.data = formUrlencode(req.data);
-        } else if (req.headers['Content-Type'] === 'multipart/form-data') {
-            delete req.headers['Content-Type'];
-            formDatas = new FormData();
-            if (req.data) {
-                for (var name in req.data) {
-                    formDatas.append(name, req.data[name]);
-                }
-            }
-            if (req.files) {
-                for (var name in req.files) {
-                    var files = document.getElementById(req.files[name]).files;
-                    if (files.length > 0) {
-                        formDatas.append(name, files[0]);
-                    }
-                }
-            }
-            req.data = formDatas;
-        } else if (typeof req.data === 'object' && req.data) {
-            req.data = JSON.stringify(req.data);
-        }
-        if (req.file) {
-            req.data = document.getElementById(req.file).files[0];
-        }
-    }else{
-      delete req.headers['Content-Type'];
-    }
-    if (req.query && typeof req.query === 'object') {
-        var getUrl = formUrlencode(req.query);
-        req.url = req.url + '?' + getUrl;
-        req.query = '';
-    }
-    xhr.open(req.method, req.url, req.async);
-    var response = {};
-    if (req.headers) {
-        var unsafeHeaderArr = [];
-        for (var name in req.headers) {
-            if(unsafeHeader.indexOf(name) > -1){
-                unsafeHeaderArr.push({
-                    name: name,
-                    value: req.headers[name]
-                })
-            }else{
-                xhr.setRequestHeader(name, req.headers[name]);
-            }		
-        }
-        if(unsafeHeaderArr.length > 0){
-            xhr.setRequestHeader('cross-request-unsafe-headers-list', encode(unsafeHeaderArr));
-        }
-    }
-
-    xhr.setRequestHeader('cross-request-open-sign', '1')
-
-    xhr.onload = function (e) {
-        var headers = xhr.getAllResponseHeaders();
-        headers = handleHeader(headers);
-        var newHeaders;
-        if(headers['cross-response-unsafe-headers-list']){
-            newHeaders = decode(headers['cross-response-unsafe-headers-list'])
-            delete headers['cross-response-unsafe-headers-list'];
-            if(newHeaders && typeof newHeaders === 'object' && Object.keys(newHeaders).length > 0){
-                headers = newHeaders;
-            }
-        }
-        response = {
-            headers: headers,
-            status: xhr.status,
-            statusText: xhr.statusText,
-            body: xhr.responseText
-        }
-        if (xhr.status == 200) {
-            successFn(response);
-        } else {
-            errorFn(response);
-        }
-    };
-    xhr.ontimeout = function (e) {
-        errorFn({
-            body: 'Error:Request timeout that the time is ' + xhr.timeout
-        })
-    };
-    xhr.onerror = function (e) {
-        errorFn({
-            body: xhr.statusText
-        })
-    };
-    xhr.upload.onprogress = function (e) { };
-
-    try {
-        xhr.send(req.data);
-    } catch (error) {
-        errorFn({
-            body: error.message
-        })
-    }
-
-
-}
 
 function sendAjaxByBack(id, req, successFn, errorFn) {
     successFns[id] = successFn;
     errorFns[id] = errorFn;
-    connect.postMessage({
-        id: id,
-        req: req
-    });
+    if (req.headers['Content-Type'] === 'multipart/form-data') {
+        var formDatas = []
+        if (req.data) {
+            for (var name in req.data) {
+                formDatas.push({name, value: req.data[name], is_file: false});
+            }
+        }
+        if (req.files) {
+            let allPromise = [];
+            for (var name in req.files) {
+                let fileTransfer = new Promise(function (resolve, reject){
+                    var files = document.getElementById(req.files[name]).files;
+                    let file = files[0]
+                    var reader = new FileReader();
+                    reader.name = name;
+                    reader.fileName = file.name;
+                    reader.onload = function () {
+                        resolve({name: this.name, value: this.result,is_file: true, fileName: this.fileName});
+                    }
+                    reader.readAsDataURL(file);
+                })
+                allPromise.push(fileTransfer);
+            }
+            Promise.all(allPromise).then(function(result){
+                formDatas = formDatas.concat(result);
+                req.formDatas = formDatas;
+                connect.postMessage({
+                    id: id,
+                    req: req,
+                });
+            })
+        }
+    } else {
+        connect.postMessage({
+            id: id,
+            req: req
+        });
+    }
 }
 
 connect.onMessage.addListener(function (msg) {
@@ -358,67 +276,26 @@ connect.onMessage.addListener(function (msg) {
     delete errorFns[id];
 });
 
-function checkFileRequest(req) {
-    if (req.files && typeof req.files === 'object' && Object.keys(req.files).length > 0) {
-        return true;
-    }
-    return false;
-}
-
-function run() {
-    var reqsDom = yRequestDom.childNodes;
-    if (!reqsDom || reqsDom.length === 0) return;
-    reqsDom.forEach(function (dom) {
-        try {
-            var status = dom.getAttribute("status"), request;
-            if (+status === INITSTATUS) {
-                dom.setAttribute("status", RUNSTATUS);
-                var data = decode(dom.innerText);
-                var req = data.req;
-                req.url = req.url || '';
-                var id = dom.getAttribute('_id');
-                data.runTime = new Date().getTime();
-
-                sendAjaxByBack(id, req, function (res) {                        
-                    responseCallback(res, dom, data);
-                }, function (err) {
-                    responseCallback(err, dom, data);
-                })
-
-                // if (location.protocol.indexOf('https') === 0 && req.url.indexOf('https') !== 0) {
-                //     sendAjaxByBack(id, req, function (res) {                        
-                //         responseCallback(res, dom, data);
-                //     }, function (err) {
-                //         responseCallback(err, dom, data);
-                //     })
-                // } else {
-                //     sendAjaxByContent(req, function (res) {
-                //         responseCallback(res, dom, data);
-                //     }, function (err) {
-                //         responseCallback(err, dom, data);
-                //     })
-                // }
-                
-
-            }
-        } catch (error) {
-            console.error(error)
-            dom.parentNode.removeChild(dom)
-        }
-
-    })
-}
-
 //因注入 index.js ，需要等到 indexScript 初始化完成后执行
 var findDom = setInterval(function () {
     try {
         yRequestDom = document.getElementById(container);
         if (yRequestDom) {
             clearInterval(findDom)
-            yRequestDom.setAttribute('key', 'yapi');
-            setInterval(function () {
-                run()
-            }, 100)
+            yRequestDom.addEventListener('myCustomEvent', function () {
+                var data = yRequestDom.innerText;
+                console.log('收到自定义事件消息：', decode(data));
+                data = decode(data);
+                var req = data.req;
+                req.url = req.url || '';
+                data.runTime = new Date().getTime();
+
+                sendAjaxByBack(data.id, req, function (res) {
+                    responseCallback(res, yRequestDom, data);
+                }, function (err) {
+                    responseCallback(err, yRequestDom, data);
+                })
+            });
         }
 
     } catch (e) {
@@ -426,7 +303,6 @@ var findDom = setInterval(function () {
         console.error(e)
     }
 }, 100)
-
 
 
 
