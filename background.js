@@ -368,6 +368,9 @@ function requestListener (details) {
 				details.requestHeaders = ensureItem(details.requestHeaders, v.name, v.value)
 			})
 		}
+		if (item.name === 'Origin' && item.value.startsWith("chrome-extension://")) {
+			details.requestHeaders.splice(index, 1)
+		}
 	})
 
 	return { requestHeaders: details.requestHeaders };
